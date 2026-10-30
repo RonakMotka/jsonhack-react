@@ -160,13 +160,13 @@ export function parseLenient(input: string): unknown {
     return input.slice(start, i);
   };
 
-  const parseObject = (): Record<string, unknown> => {
-    i++; // {
+  const parseObject = (implicit = false): Record<string, unknown> => {
+    if (!implicit) i++; // {
     const obj: Record<string, unknown> = {};
     for (;;) {
       skip();
       if (i >= n) return obj; // auto-close
-      if (input[i] === '}') {
+      if (input[i] === '}' && !implicit) {
         i++;
         return obj;
       }
@@ -221,6 +221,11 @@ export function parseLenient(input: string): unknown {
 
   skip();
   if (i >= n) return fail('Unexpected end of input');
+
+  // A fragment like `"key": [...]` pasted without its enclosing braces.
+  const looksLikeKey = /^(?:"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|[A-Za-z_$][\w$-]*)\s*:/;
+  if (looksLikeKey.test(input.slice(i, i + 500))) return parseObject(true);
+
   const value = parseValue();
   skip();
   if (i < n) {
