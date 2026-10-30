@@ -5,6 +5,7 @@ import { Toolbar } from './Toolbar';
 import { JsonTreeNode } from './JsonTreeNode';
 import { KeyValueTable } from './KeyValueTable';
 import { SearchBar } from './SearchBar';
+import { parseLenient } from '@/lib/lenientJson';
 
 const SAMPLE_JSON = [
   {
@@ -60,7 +61,7 @@ export const JsonEditor = () => {
       return;
     }
     try {
-      const parsed = JSON.parse(text);
+      const parsed = parseLenient(text);
       setParsedJson(parsed);
       setError(null);
     } catch (e) {
@@ -96,7 +97,7 @@ export const JsonEditor = () => {
   const handleFormat = () => {
     if (!jsonText.trim()) return;
     try {
-      const parsed = JSON.parse(jsonText);
+      const parsed = parseLenient(jsonText);
       const formatted = JSON.stringify(parsed, null, 2);
       setJsonText(formatted);
       setParsedJson(parsed);
@@ -110,7 +111,7 @@ export const JsonEditor = () => {
   const handleMinify = () => {
     if (!jsonText.trim()) return;
     try {
-      const parsed = JSON.parse(jsonText);
+      const parsed = parseLenient(jsonText);
       const minified = JSON.stringify(parsed);
       setJsonText(minified);
       setParsedJson(parsed);
